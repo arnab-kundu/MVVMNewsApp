@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.androiddevs.mvvmnewsapp.R
 import com.androiddevs.mvvmnewsapp.adapters.NewsAdapter
 import com.androiddevs.mvvmnewsapp.databinding.FragmentBreakingNewsBinding
@@ -42,7 +43,7 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
         }
 
         viewModel.breakingNews.observe(viewLifecycleOwner, Observer { response ->
-            when(response) {
+            when (response) {
                 is Resource.Success -> {
                     hideProgressBar()
                     hideErrorMessage()
@@ -50,7 +51,7 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
                         newsAdapter.differ.submitList(newsResponse.articles.toList())
                         val totalPages = newsResponse.totalResults / QUERY_PAGE_SIZE + 2
                         isLastPage = viewModel.breakingNewsPage == totalPages
-                        if(isLastPage) {
+                        if (isLastPage) {
                             binding.rvBreakingNews.setPadding(0, 0, 0, 0)
                         }
                     }
@@ -114,9 +115,10 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
             val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
             val isNotAtBeginning = firstVisibleItemPosition >= 0
             val isTotalMoreThanVisible = totalItemCount >= QUERY_PAGE_SIZE
-            val shouldPaginate = isNoErrors && isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
-                    isTotalMoreThanVisible && isScrolling
-            if(shouldPaginate) {
+            val shouldPaginate =
+                isNoErrors && isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
+                        isTotalMoreThanVisible && isScrolling
+            if (shouldPaginate) {
                 viewModel.getBreakingNews("us")
                 isScrolling = false
             }
@@ -124,7 +126,7 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                 isScrolling = true
             }
         }
@@ -134,7 +136,9 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
         newsAdapter = NewsAdapter()
         binding.rvBreakingNews.apply {
             adapter = newsAdapter
-            layoutManager = LinearLayoutManager(activity)
+            layoutManager = LinearLayoutManager(activity).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
             addOnScrollListener(this@BreakingNewsFragment.scrollListener)
         }
     }
