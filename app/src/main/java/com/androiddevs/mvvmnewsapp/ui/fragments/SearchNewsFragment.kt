@@ -1,7 +1,9 @@
 package com.androiddevs.mvvmnewsapp.ui.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
@@ -14,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.androiddevs.mvvmnewsapp.R
 import com.androiddevs.mvvmnewsapp.adapters.NewsAdapter
 import com.androiddevs.mvvmnewsapp.databinding.FragmentSearchNewsBinding
-import com.androiddevs.mvvmnewsapp.ui.NewsActivity
 import com.androiddevs.mvvmnewsapp.ui.NewsViewModel
 import com.androiddevs.mvvmnewsapp.util.Constants
 import com.androiddevs.mvvmnewsapp.util.Constants.Companion.SEARCH_NEWS_TIME_DELAY
@@ -31,19 +32,21 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
     lateinit var newsAdapter: NewsAdapter
     val TAG = "SearchNewsFragment"
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
+        binding = FragmentSearchNewsBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentSearchNewsBinding.inflate(layoutInflater)
         setupRecyclerView()
 
         newsAdapter.setOnItemClickListener {
             val bundle = Bundle().apply {
                 putSerializable("article", it)
             }
-            findNavController().navigate(
-                R.id.action_searchNewsFragment_to_articleFragment,
-                bundle
-            )
+            findNavController().navigate(R.id.action_searchNewsFragment_to_articleFragment, bundle)
         }
 
         var job: Job? = null
@@ -52,7 +55,7 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
             job = MainScope().launch {
                 delay(SEARCH_NEWS_TIME_DELAY)
                 editable?.let {
-                    if(editable.toString().isNotEmpty()) {
+                    if (editable.toString().isNotEmpty()) {
                         viewModel.searchNews(editable.toString())
                     }
                 }
@@ -60,7 +63,7 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
         }
 
         viewModel.searchNews.observe(viewLifecycleOwner, Observer { response ->
-            when(response) {
+            when (response) {
                 is Resource.Success -> {
                     hideProgressBar()
                     hideErrorMessage()
@@ -68,7 +71,7 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
                         newsAdapter.differ.submitList(newsResponse.articles.toList())
                         val totalPages = newsResponse.totalResults / Constants.QUERY_PAGE_SIZE + 2
                         isLastPage = viewModel.searchNewsPage == totalPages
-                        if(isLastPage) {
+                        if (isLastPage) {
                             binding.rvSearchNews.setPadding(0, 0, 0, 0)
                         }
                     }
@@ -137,7 +140,7 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
             val isTotalMoreThanVisible = totalItemCount >= Constants.QUERY_PAGE_SIZE
             val shouldPaginate = isNoErrors && isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
                     isTotalMoreThanVisible && isScrolling
-            if(shouldPaginate) {
+            if (shouldPaginate) {
                 viewModel.searchNews(binding.etSearch.text.toString())
                 isScrolling = false
             }
@@ -145,7 +148,7 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                 isScrolling = true
             }
         }
@@ -156,7 +159,9 @@ class SearchNewsFragment : Fragment(R.layout.fragment_search_news) {
         newsAdapter = NewsAdapter()
         binding.rvSearchNews.apply {
             adapter = newsAdapter
-            layoutManager = LinearLayoutManager(activity)
+            layoutManager = LinearLayoutManager(activity).apply {
+
+            }
             addOnScrollListener(this@SearchNewsFragment.scrollListener)
         }
     }

@@ -6,11 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.androiddevs.mvvmnewsapp.R
 import com.androiddevs.mvvmnewsapp.databinding.ItemArticlePreviewBinding
 import com.androiddevs.mvvmnewsapp.models.Article
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.item_article_preview.view.*
 
 class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ArticleViewHolder>() {
 
@@ -31,9 +29,8 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ArticleViewHolder>() {
     val differ = AsyncListDiffer(this, differCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
-        //binding = ItemArticlePreviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_article_preview, parent, false)
-        return ArticleViewHolder(view)
+        binding = ItemArticlePreviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ArticleViewHolder(binding.root)
     }
 
     override fun getItemCount(): Int {
@@ -45,11 +42,11 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ArticleViewHolder>() {
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         val article = differ.currentList[position]
         holder.itemView.apply {
-            Glide.with(this).load(article.urlToImage).into(ivArticleImage)
-            tvSource.text = article.source?.name
-            tvTitle.text = article.title
-            tvDescription.text = article.description
-            tvPublishedAt.text = article.publishedAt
+            Glide.with(this).load(article.urlToImage).into(binding.ivArticleImage)
+            binding.tvSource.text = article.source?.name
+            binding.tvTitle.text = article.title
+            binding.tvDescription.text = article.description
+            binding.tvPublishedAt.text = article.publishedAt
 
             setOnClickListener {
                 onItemClickListener?.let { it(article) }
